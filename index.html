@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maybo Open Courses 2027</title>
+  <!--
+    DATA SOURCE : Google Sheet 1mIFWgE0EoyUT0SENiPVkdlUeduTwMwFnQmM9PSN-uHQ
+    REQUIREMENT : Sheet must be "Anyone with the link can view"
+                  Share → Change → Anyone with the link → Viewer
+    LIVE UPDATES: Page fetches fresh data from the sheet on every load.
+                  No changes to this file are needed when the sheet changes.
+    GITHUB PAGES: Upload as index.html in a public repo.
+                  Repo Settings → Pages → Deploy from branch (main / root).
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange:    #dd4405;
+      --orange-bg: #fdf1ec;
+      --dark:      #2d2c2c;
+      --body-text: #212529;
+      --gray-bg:   #f5f7f6;
+      --gray-mid:  #e8e8e8;
+      --border:    #d7d8d9;
+      --white:     #ffffff;
+      --green:     #28a745;
+      --green-bg:  #e9f7ed;
+    }
+    html { font-size: 112.5%; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Lato', Arial, sans-serif; color: var(--body-text); background: var(--gray-bg); }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .site-header { background: var(--dark); padding: 1.5rem 2rem; }
+    .site-logo { font-size: 1.5rem; font-weight: 700; color: var(--white); letter-spacing: -0.5px; }
+    .site-logo span { color: var(--orange); }
+    .site-tagline { color: var(--gray-mid); font-size: 0.8rem; font-weight: 300; margin-top: 0.2rem; letter-spacing: 0.03em; }
+
+    /* ── Layout ─────────────────────────────────────────────── */
+    .container { max-width: 1050px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+    /* ── Intro ──────────────────────────────────────────────── */
+    .eyebrow { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 0.35rem; }
+    .page-h1 { font-size: 1.6rem; font-weight: 700; color: var(--dark); margin-bottom: 0.6rem; }
+    .page-intro { font-weight: 300; line-height: 1.65; margin-bottom: 2rem; max-width: 640px; }
+
+    /* ── Filter bar ─────────────────────────────────────────── */
+    .filter-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filter-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dark); }
+    .filter-btn {
+      background: var(--white); border: 1px solid var(--border); border-radius: 2px;
+      padding: 0.35rem 1rem; font-family: 'Lato', Arial, sans-serif;
+      font-size: 0.85rem; font-weight: 700; color: var(--body-text); cursor: pointer;
+      transition: border-color 0.12s, color 0.12s, background 0.12s;
+    }
+    .filter-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .filter-btn.active { background: var(--orange); border-color: var(--orange); color: var(--white); }
+
+    /* ── Meta ───────────────────────────────────────────────── */
+    .meta-line { font-size: 0.75rem; font-weight: 300; color: var(--body-text); text-align: right; margin-bottom: 1.5rem; }
+
+    /* ── Section headings ───────────────────────────────────── */
+    .section-head { margin: 2.5rem 0 1rem; }
+    .section-eyebrow { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 0.2rem; }
+    .section-title { font-size: 1.05rem; font-weight: 700; color: var(--dark); }
+
+    /* ── Pathway block ──────────────────────────────────────── */
+    .pathway-block { margin-bottom: 1.5rem; }
+    .pathway-bar {
+      background: var(--dark); border-radius: 4px 4px 0 0;
+      padding: 0.65rem 1.25rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .pw-left { display: flex; align-items: center; gap: 0.85rem; }
+    .pw-tag {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--orange); background: rgba(221,68,5,0.18); border-radius: 2px; padding: 0.2rem 0.55rem;
+    }
+    .pw-location { font-weight: 700; color: var(--white); font-size: 0.9rem; }
+    .pw-induction { font-size: 0.78rem; font-weight: 300; color: var(--gray-mid); }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    .data-table {
+      width: 100%; border-collapse: collapse; background: var(--white);
+      border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 4px 4px; font-size: 0.875rem;
+    }
+    .data-table.standalone { border-top: 1px solid var(--border); border-radius: 4px; }
+    .data-table thead th {
+      background: #3c3b3b; color: var(--white); padding: 0.55rem 1rem; text-align: left;
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap;
+    }
+    .data-table tbody tr { border-bottom: 1px solid var(--border); }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--gray-bg); }
+    .data-table td { padding: 0.7rem 1rem; vertical-align: middle; }
+
+    .course-cell { display: flex; align-items: center; }
+    .course-accent { width: 3px; min-height: 1.1rem; background: var(--orange); border-radius: 2px; flex-shrink: 0; margin-right: 0.75rem; }
+    .course-name { font-weight: 700; color: var(--dark); }
+
+    /* ── Badges ─────────────────────────────────────────────── */
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 2px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+    .b-initial { background: var(--orange-bg); color: var(--orange); }
+    .b-recert  { background: var(--gray-mid); color: var(--dark); }
+    .b-sia     { background: #dbeafe; color: #1d4ed8; }
+    .b-status  { background: var(--green-bg); color: var(--green); }
+
+    /* ── Places ─────────────────────────────────────────────── */
+    .avail   { font-weight: 700; color: var(--green); }
+    .limited { font-weight: 700; color: var(--orange); }
+    .full    { font-weight: 700; color: #dc3545; }
+
+    /* ── Loading / error ────────────────────────────────────── */
+    .state-box { text-align: center; padding: 3.5rem 1rem; }
+    .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CTA strip ──────────────────────────────────────────── */
+    .cta-strip {
+      background: var(--dark); border-top: 3px solid var(--orange); border-radius: 4px;
+      padding: 1.5rem 2rem; margin-top: 3rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .cta-strip-title { color: var(--white); font-weight: 700; margin-bottom: 0.25rem; }
+    .cta-strip p { color: var(--gray-mid); font-size: 0.875rem; font-weight: 300; }
+    .cta-btn {
+      display: inline-block; background: var(--orange); color: var(--white);
+      font-family: 'Lato', Arial, sans-serif; font-weight: 700; font-size: 0.875rem;
+      padding: 0.6rem 1.5rem; border-radius: 3px; text-decoration: none; white-space: nowrap;
+    }
+    .cta-btn:hover { background: #c23d04; }
+
+    .no-data { text-align: center; padding: 2.5rem; font-weight: 300; }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .site-header { padding: 1.25rem 1rem; }
+      .container { padding: 1.25rem 1rem 4rem; }
+      .data-table { font-size: 0.8rem; }
+      .data-table td, .data-table thead th { padding: 0.6rem 0.75rem; }
+      .cta-strip { flex-direction: column; align-items: flex-start; }
+      .pathway-bar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-logo">maybo<span>.</span></div>
+  <div class="site-tagline">Open Course Schedule · 2027</div>
+</header>
+
+<div class="container">
+
+  <div class="eyebrow">Open Courses 2027</div>
+  <h1 class="page-h1">Course Schedule</h1>
+  <p class="page-intro">
+    Maybo open courses run across three UK locations throughout 2027. Each numbered pathway delivers a structured programme of modules in sequence. Standalone recertification sessions are also available for qualified practitioners.
+  </p>
+
+  <div class="filter-row">
+    <span class="filter-label">Location</span>
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('coventry',this)">Coventry</button>
+    <button class="filter-btn" onclick="setFilter('brighouse',this)">Brighouse</button>
+    <button class="filter-btn" onclick="setFilter('reading',this)">Reading</button>
+  </div>
+
+  <div class="meta-line" id="meta"></div>
+  <div id="app"><div class="state-box"><div class="spinner"></div><p>Loading schedule…</p></div></div>
+
+  <div class="cta-strip">
+    <div>
+      <div class="cta-strip-title">Ready to book or want more information?</div>
+      <p>Contact our team to reserve your place or find out which pathway is right for your organisation.</p>
+    </div>
+    <a class="cta-btn" href="https://www.maybo.com/contact">Enquire Now</a>
+  </div>
+
+</div>
+
+<script>
+const SHEET_ID = '1mIFWgE0EoyUT0SENiPVkdlUeduTwMwFnQmM9PSN-uHQ';
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+let allRows = [];
+let activeFilter = 'all';
+
+/* ── CSV parser ─────────────────────────────────────────────────────────── */
+function parseCSV(raw) {
+  const lines = raw.replace(/\r/g, '').trim().split('\n');
+
+  function parseLine(line) {
+    const cells = []; let buf = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (inQ && line[i + 1] === '"') { buf += '"'; i++; }
+        else { inQ = !inQ; }
+      } else if (c === ',' && !inQ) {
+        cells.push(buf.trim()); buf = '';
+      } else {
+        buf += c;
+      }
+    }
+    cells.push(buf.trim());
+    return cells;
+  }
+
+  const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const col = name => headers.indexOf(name);
+
+  const c = {
+    pathway:  col('pathway'),
+    course:   col('course'),
+    stage:    col('stage'),
+    induct:   col('induction'),
+    location: col('location'),
+    start:    col('startdate'),
+    end:      col('enddate'),
+    duration: col('duration'),
+    capacity: col('capacity'),
+    places:   col('placesremaining'),
+    status:   col('status'),
+  };
+
+  return lines.slice(1)
+    .map(l => parseLine(l))
+    .filter(r => r.some(cell => cell !== ''))
+    .map(r => ({
+      pathway:  r[c.pathway]  || '',
+      course:   r[c.course]   || '',
+      stage:    r[c.stage]    || '',
+      induct:   r[c.induct]   || '',
+      location: r[c.location] || '',
+      start:    r[c.start]    || '',
+      end:      r[c.end]      || '',
+      duration: r[c.duration] || '',
+      capacity: r[c.capacity] || '',
+      places:   r[c.places]   || '',
+      status:   r[c.status]   || '',
+    }))
+    .filter(r => r.course.length > 0);
+}
+
+/* ── Date helpers ───────────────────────────────────────────────────────── */
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function parseDate(s) {
+  if (!s) return null;
+  const p = s.split(' ')[0].split('/');
+  if (p.length !== 3) return null;
+  return { d: +p[0], m: +p[1] - 1, y: +p[2] };
+}
+
+function fmtDate(s) {
+  const p = parseDate(s);
+  return p ? `${p.d} ${MON[p.m]} ${p.y}` : s;
+}
+
+function fmtRange(s, e) {
+  const sd = parseDate(s), ed = parseDate(e);
+  if (!sd) return '';
+  if (!ed || (sd.d === ed.d && sd.m === ed.m && sd.y === ed.y)) return fmtDate(s);
+  if (sd.m === ed.m && sd.y === ed.y) return `${sd.d}–${ed.d} ${MON[sd.m]} ${sd.y}`;
+  if (sd.y === ed.y) return `${sd.d} ${MON[sd.m]} – ${ed.d} ${MON[ed.m]} ${sd.y}`;
+  return `${fmtDate(s)} – ${fmtDate(e)}`;
+}
+
+function fmtInduction(s) {
+  const p = parseDate(s);
+  return p ? `Online induction: ${p.d} ${MON[p.m]} ${p.y}` : '';
+}
+
+/* ── HTML helpers ───────────────────────────────────────────────────────── */
+function stageBadge(stage) {
+  const s = (stage || '').toLowerCase();
+  if (s === 'initial') return `<span class="badge b-initial">Initial</span>`;
+  if (s === 'recert')  return `<span class="badge b-recert">Recert</span>`;
+  if (s === 'sia')     return `<span class="badge b-sia">SIA</span>`;
+  return `<span class="badge b-recert">${stage}</span>`;
+}
+
+function placesHtml(places, capacity) {
+  const p = parseInt(places), c = parseInt(capacity);
+  if (isNaN(p)) return places || '—';
+  if (p === 0) return `<span class="full">Full</span>`;
+  const cls = (!isNaN(c) && p / c <= 0.25) ? 'limited' : 'avail';
+  return `<span class="${cls}">${p}</span>`;
+}
+
+function courseRow(r, showLoc) {
+  const dur = r.duration ? r.duration + (parseInt(r.duration) === 1 ? ' day' : ' days') : '—';
+  return `<tr>
+    <td><div class="course-cell"><div class="course-accent"></div><span class="course-name">${r.course}</span></div></td>
+    ${showLoc ? `<td>${r.location}</td>` : ''}
+    <td>${stageBadge(r.stage)}</td>
+    <td style="white-space:nowrap">${fmtRange(r.start, r.end)}</td>
+    <td style="white-space:nowrap">${dur}</td>
+    <td>${placesHtml(r.places, r.capacity)}</td>
+    <td>${r.status ? `<span class="badge b-status">${r.status}</span>` : '—'}</td>
+  </tr>`;
+}
+
+/* ── Render ─────────────────────────────────────────────────────────────── */
+function render() {
+  const data = activeFilter === 'all'
+    ? allRows
+    : allRows.filter(r => r.location.toLowerCase() === activeFilter);
+
+  if (!data.length) {
+    document.getElementById('app').innerHTML = `<div class="no-data">No courses found for this location.</div>`;
+    return;
+  }
+
+  const pathwayMap = new Map();
+  const standalone = [];
+
+  for (const r of data) {
+    const p = r.pathway.trim();
+    if (/^\d+$/.test(p)) {
+      if (!pathwayMap.has(p)) pathwayMap.set(p, []);
+      pathwayMap.get(p).push(r);
+    } else {
+      standalone.push(r);
+    }
+  }
+
+  let html = '';
+
+  /* Numbered pathways */
+  if (pathwayMap.size > 0) {
+    html += `<div class="section-head"><div class="section-eyebrow">Training Pathways</div><div class="section-title">Structured Programme</div></div>`;
+
+    for (const [pNum, pRows] of [...pathwayMap.entries()].sort((a, b) => +a[0] - +b[0])) {
+      const loc = pRows[0].location;
+      const indRow = pRows.find(r => r.induct);
+      const indText = indRow ? fmtInduction(indRow.induct) : '';
+
+      html += `
+      <div class="pathway-block">
+        <div class="pathway-bar">
+          <div class="pw-left">
+            <span class="pw-tag">Pathway ${pNum}</span>
+            <span class="pw-location">${loc}</span>
+          </div>
+          ${indText ? `<span class="pw-induction">${indText}</span>` : ''}
+        </div>
+        <table class="data-table">
+          <thead><tr>
+            <th>Course</th><th>Stage</th><th>Dates</th><th>Duration</th><th>Places Available</th><th>Status</th>
+          </tr></thead>
+          <tbody>${pRows.map(r => courseRow(r, false)).join('')}</tbody>
+        </table>
+      </div>`;
+    }
+  }
+
+  /* Standalone / Recert sessions */
+  if (standalone.length > 0) {
+    standalone.sort((a, b) => {
+      const da = parseDate(a.start), db = parseDate(b.start);
+      if (!da || !db) return 0;
+      return (da.y * 400 + da.m * 31 + da.d) - (db.y * 400 + db.m * 31 + db.d);
+    });
+
+    html += `
+    <div class="section-head"><div class="section-eyebrow">Additional Sessions</div><div class="section-title">Recertification &amp; Specialist</div></div>
+    <table class="data-table standalone">
+      <thead><tr>
+        <th>Course</th><th>Location</th><th>Stage</th><th>Dates</th><th>Duration</th><th>Places Available</th><th>Status</th>
+      </tr></thead>
+      <tbody>${standalone.map(r => courseRow(r, true)).join('')}</tbody>
+    </table>`;
+  }
+
+  document.getElementById('app').innerHTML = html;
+}
+
+/* ── Filter ─────────────────────────────────────────────────────────────── */
+function setFilter(loc, btn) {
+  activeFilter = loc;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+/* ── Load ───────────────────────────────────────────────────────────────── */
+async function load() {
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    allRows = parseCSV(text);
+    render();
+    const now = new Date();
+    document.getElementById('meta').textContent =
+      `Schedule loaded: ${now.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long', year:'numeric' })}`;
+  } catch (err) {
+    document.getElementById('app').innerHTML = `
+      <div class="state-box">
+        <p>Unable to load the course schedule. Please refresh to try again.</p>
+        <p style="margin-top:0.75rem;font-size:0.75rem;font-weight:300;opacity:0.6">${err.message}</p>
+      </div>`;
+  }
+}
+
+/* ── iframe resize (for embedding in maybo.com) ─────────────────────────── */
+function sendHeight() { window.parent.postMessage({ iframeHeight: document.body.scrollHeight }, '*'); }
+new ResizeObserver(sendHeight).observe(document.body);
+window.addEventListener('load', sendHeight);
+
+load();
+</script>
+</body>
+</html>
