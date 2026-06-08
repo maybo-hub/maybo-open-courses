@@ -67,7 +67,7 @@
       color: var(--orange); background: rgba(221,68,5,0.18); border-radius: 2px; padding: 0.2rem 0.55rem;
     }
     .pw-location { font-weight: 700; color: var(--white); font-size: 0.9rem; }
-    .pw-induction { font-size: 0.78rem; font-weight: 300; color: var(--gray-mid); }
+    .pw-induction { font-size: 0.78rem; font-weight: 700; color: var(--white); }
 
     /* ── Tables ─────────────────────────────────────────────── */
     .data-table {
@@ -146,9 +146,8 @@
     <button class="filter-btn" onclick="setFilter('reading',this)">Reading</button>
   </div>
 
-  <div class="meta-line" id="meta"></div>
   <div id="app"><div class="state-box"><div class="spinner"></div><p>Loading schedule…</p></div></div>
-
+  <div class="meta-line" id="meta"></div>
 
 </div>
 
@@ -303,7 +302,7 @@ function render() {
 
   /* Numbered pathways */
   if (pathwayMap.size > 0) {
-    html += `<div class="section-head"><div class="section-eyebrow">Training Pathways</div><div class="section-title">Structured Programme</div></div>`;
+    html += `<div class="section-head"><div class="section-eyebrow">Trainer Development Pathways For New Trainers</div></div>`;
 
     for (const [pNum, pRows] of [...pathwayMap.entries()].sort((a, b) => +a[0] - +b[0])) {
       const loc = pRows[0].location;
@@ -314,7 +313,6 @@ function render() {
       <div class="pathway-block">
         <div class="pathway-bar">
           <div class="pw-left">
-            <span class="pw-tag">Pathway ${pNum}</span>
             <span class="pw-location">${loc}</span>
           </div>
           ${indText ? `<span class="pw-induction">${indText}</span>` : ''}
@@ -338,7 +336,7 @@ function render() {
     });
 
     html += `
-    <div class="section-head"><div class="section-eyebrow">Additional Sessions</div><div class="section-title">Recertification &amp; Specialist</div></div>
+    <div class="section-head"><div class="section-eyebrow">Recertification and Specialist</div></div>
     <table class="data-table standalone">
       <thead><tr>
         <th>Course</th><th>Location</th><th>Stage</th><th>Dates</th><th>Duration</th><th>Places Available</th><th>Status</th>
