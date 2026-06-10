@@ -60,7 +60,7 @@
     /* ── Pathway block ──────────────────────────────────────── */
     .pathway-block { margin-bottom: 1.5rem; }
     .pathway-bar {
-      background: var(--dark); border-radius: 4px 4px 0 0;
+      background: var(--orange-bg); border: 1px solid var(--border); border-bottom: none; border-radius: 4px 4px 0 0;
       padding: 0.65rem 1.25rem; display: flex; align-items: center;
       justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
     }
@@ -69,8 +69,8 @@
       font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
       color: var(--orange); background: rgba(221,68,5,0.18); border-radius: 2px; padding: 0.2rem 0.55rem;
     }
-    .pw-location { font-weight: 700; color: var(--white); font-size: 0.9rem; }
-    .pw-induction { font-size: 0.78rem; font-weight: 700; color: var(--white); }
+    .pw-location { font-weight: 700; color: var(--orange); font-size: 0.9rem; }
+    .pw-induction { font-size: 0.78rem; font-weight: 700; color: var(--orange); }
 
     /* ── Tables ─────────────────────────────────────────────── */
     .data-table {
@@ -80,8 +80,9 @@
     }
     .data-table.standalone { border-top: 1px solid var(--border); border-radius: 4px; }
     .data-table thead th {
-      background: #3c3b3b; color: var(--white); padding: 0.55rem 1rem; text-align: left;
+      background: var(--gray-bg); color: var(--dark); padding: 0.55rem 1rem; text-align: left;
       font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap;
+      border-bottom: 1px solid var(--border);
     }
     .data-table tbody tr { border-bottom: 1px solid var(--border); }
     .data-table tbody tr:last-child { border-bottom: none; }
@@ -94,10 +95,11 @@
 
     /* ── Badges ─────────────────────────────────────────────── */
     .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 2px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
-    .b-initial { background: var(--orange-bg); color: var(--orange); }
-    .b-recert  { background: var(--gray-mid); color: var(--dark); }
-    .b-sia     { background: #dbeafe; color: #1d4ed8; }
-    .b-status  { background: var(--green-bg); color: var(--green); }
+    .b-initial  { background: var(--orange-bg); color: var(--orange); }
+    .b-recert   { background: var(--gray-mid); color: var(--dark); }
+    .b-sia      { background: #dbeafe; color: #1d4ed8; }
+    .b-status   { background: var(--green-bg); color: var(--green); }
+    .b-planned  { background: var(--gray-mid); color: var(--dark); }
 
     /* ── Places ─────────────────────────────────────────────── */
     .avail   { font-weight: 700; color: var(--green); }
@@ -296,6 +298,12 @@ function placesHtml(places, capacity) {
 
 function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
+function statusBadge(status) {
+  if (!status) return '—';
+  const cls = status.toLowerCase() === 'planned' ? 'b-planned' : 'b-status';
+  return `<span class="badge ${cls}">${status}</span>`;
+}
+
 function courseRow(r, showLoc) {
   const dur = r.duration ? r.duration + (parseInt(r.duration) === 1 ? ' day' : ' days') : '—';
   const ss = (r.selfStudy && r.selfStudy !== '-') ? r.selfStudy : '';
@@ -306,7 +314,7 @@ function courseRow(r, showLoc) {
     <td style="white-space:nowrap">${fmtRange(r.start, r.end)}</td>
     <td style="white-space:nowrap">${dur}</td>
     <td>${placesHtml(r.places, r.capacity)}</td>
-    <td>${r.status ? `<span class="badge b-status">${r.status}</span>` : '—'}</td>
+    <td>${statusBadge(r.status)}</td>
   </tr>`;
 }
 
