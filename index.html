@@ -33,15 +33,13 @@
     body { font-family: 'Lato', Arial, sans-serif; color: var(--body-text); background: var(--white); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
     /* ── Top strip ──────────────────────────────────────────── */
-    .top-strip { background: var(--gray-bg); border-top: 3px solid var(--orange); border-bottom: 1px solid var(--border); padding: 1.25rem 2rem; }
-    .top-strip-inner { max-width: 1100px; margin: 0 auto; font-size: 0.8125rem; font-weight: 300; color: var(--muted); }
+    .top-strip { background: var(--gray-bg); border-top: 3px solid var(--orange); border-bottom: 1px solid var(--border); padding: 1rem 2rem; }
+    .top-strip-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .filter-group { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dark); }
 
     /* ── Layout ─────────────────────────────────────────────── */
     .container { max-width: 1100px; margin: 0 auto; padding: 3.5rem 2rem 5rem; }
-
-    /* ── Filter bar ─────────────────────────────────────────── */
-    .filter-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .filter-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dark); }
     .filter-btn {
       background: var(--white); border: 1px solid var(--border); border-radius: 2px;
       padding: 0.35rem 1rem; font-family: 'Lato', Arial, sans-serif;
@@ -142,18 +140,24 @@
 <body>
 
 <div class="top-strip">
-  <div class="top-strip-inner">Maybo Open Course Schedule · 2027</div>
+  <div class="top-strip-inner">
+    <div class="filter-group">
+      <span class="filter-label">Year</span>
+      <div id="year-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Location</span>
+      <div id="loc-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="filter-btn active" onclick="setLocFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setLocFilter('coventry',this)">Coventry</button>
+        <button class="filter-btn" onclick="setLocFilter('brighouse',this)">Brighouse</button>
+        <button class="filter-btn" onclick="setLocFilter('reading',this)">Reading</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="container">
-
-  <div class="filter-row">
-    <span class="filter-label">Location</span>
-    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-    <button class="filter-btn" onclick="setFilter('coventry',this)">Coventry</button>
-    <button class="filter-btn" onclick="setFilter('brighouse',this)">Brighouse</button>
-    <button class="filter-btn" onclick="setFilter('reading',this)">Reading</button>
-  </div>
 
   <div id="app"><div class="state-box"><div class="spinner"></div><p>Loading schedule…</p></div></div>
   <div class="meta-line" id="meta"></div>
@@ -165,7 +169,8 @@ const SHEET_ID = '1mIFWgE0EoyUT0SENiPVkdlUeduTwMwFnQmM9PSN-uHQ';
 const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
 let allRows = [];
-let activeFilter = 'all';
+let activeLoc  = 'all';
+let activeYear = 'all';
 
 /* ── CSV parser ─────────────────────────────────────────────────────────── */
 function parseCSV(raw) {
@@ -285,9 +290,9 @@ function courseRow(r, showLoc) {
 
 /* ── Render ─────────────────────────────────────────────────────────────── */
 function render() {
-  const data = activeFilter === 'all'
-    ? allRows
-    : allRows.filter(r => r.location.toLowerCase() === activeFilter);
+  let data = allRows;
+  if (activeYear !== 'all') data = data.filter(r => { const p = parseDate(r.start); return p && p.y === activeYear; });
+  if (activeLoc  !== 'all') data = data.filter(r => r.location.toLowerCase() === activeLoc);
 
   if (!data.length) {
     document.getElementById('app').innerHTML = `<div class="no-data">No courses found for this location.</div>`;
@@ -357,12 +362,31 @@ function render() {
   document.getElementById('app').innerHTML = html;
 }
 
-/* ── Filter ─────────────────────────────────────────────────────────────── */
-function setFilter(loc, btn) {
-  activeFilter = loc;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+/* ── Filters ────────────────────────────────────────────────────────────── */
+function setLocFilter(loc, btn) {
+  activeLoc = loc;
+  document.querySelectorAll('#loc-filters .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
+}
+
+function setYearFilter(year, btn) {
+  activeYear = year;
+  document.querySelectorAll('#year-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function renderYearFilters(rows) {
+  const years = [...new Set(
+    rows.map(r => { const p = parseDate(r.start); return p ? p.y : null; })
+        .filter(y => y !== null && y >= 2026 && y <= 2030)
+  )].sort();
+
+  const container = document.getElementById('year-filters');
+  const allBtn = `<button class="filter-btn active" onclick="setYearFilter('all',this)">All</button>`;
+  const yearBtns = years.map(y => `<button class="filter-btn" onclick="setYearFilter(${y},this)">${y}</button>`).join('');
+  container.innerHTML = allBtn + yearBtns;
 }
 
 /* ── Load ───────────────────────────────────────────────────────────────── */
@@ -372,6 +396,7 @@ async function load() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     allRows = parseCSV(text);
+    renderYearFilters(allRows);
     render();
     const now = new Date();
     document.getElementById('meta').textContent =
