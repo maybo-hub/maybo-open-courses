@@ -160,12 +160,7 @@
     </div>
     <div class="filter-group">
       <span class="filter-label">Location</span>
-      <div id="loc-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap">
-        <button class="filter-btn active" onclick="setLocFilter('all',this)">All</button>
-        <button class="filter-btn" onclick="setLocFilter('coventry',this)">Coventry</button>
-        <button class="filter-btn" onclick="setLocFilter('brighouse',this)">Brighouse</button>
-        <button class="filter-btn" onclick="setLocFilter('reading south',this)">Reading</button>
-      </div>
+      <div id="loc-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap"></div>
     </div>
   </div>
 </div>
@@ -455,6 +450,20 @@ function renderYearFilters(rows) {
   container.innerHTML = allBtn + yearBtns;
 }
 
+function renderLocFilters(rows) {
+  const locs = [...new Set(
+    rows.map(r => r.location.trim()).filter(l => l.length > 0)
+  )].sort((a, b) => a.localeCompare(b));
+
+  const container = document.getElementById('loc-filters');
+  const allBtn = `<button class="filter-btn active" onclick="setLocFilter('all',this)">All</button>`;
+  const locBtns = locs.map(l => {
+    const val = l.toLowerCase().replace(/'/g, "\\'");
+    return `<button class="filter-btn" onclick="setLocFilter('${val}',this)">${l}</button>`;
+  }).join('');
+  container.innerHTML = allBtn + locBtns;
+}
+
 /* ── Load ───────────────────────────────────────────────────────────────── */
 async function load() {
   try {
@@ -463,6 +472,7 @@ async function load() {
     const text = await res.text();
     allRows = parseCSV(text);
     renderYearFilters(allRows);
+    renderLocFilters(allRows);
     render();
     const now = new Date();
     document.getElementById('meta').textContent =
