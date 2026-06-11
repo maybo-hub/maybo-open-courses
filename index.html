@@ -188,26 +188,36 @@ let activeYear = 'all';
 
 /* ── CSV parser ─────────────────────────────────────────────────────────── */
 function parseCSV(raw) {
-  const lines = raw.replace(/\r/g, '').trim().split('\n');
+  raw = raw.replace(/\r/g, '');
 
-  function parseLine(line) {
-    const cells = []; let buf = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') {
-        if (inQ && line[i + 1] === '"') { buf += '"'; i++; }
-        else { inQ = !inQ; }
-      } else if (c === ',' && !inQ) {
-        cells.push(buf.trim()); buf = '';
-      } else {
-        buf += c;
-      }
+  /* Tokenise the whole document so newlines inside quoted cells (e.g. a Level
+     value like "Primary & Secondary\n(Level 1)") stay part of the cell rather
+     than being mistaken for a new record. */
+  const rows = [];
+  let cells = [], buf = '', inQ = false;
+  const endCell = () => { cells.push(buf.replace(/\s+/g, ' ').trim()); buf = ''; };
+  const endRow  = () => { endCell(); rows.push(cells); cells = []; };
+
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (raw[i + 1] === '"') { buf += '"'; i++; }
+        else inQ = false;
+      } else buf += ch;
+    } else if (ch === '"') {
+      inQ = true;
+    } else if (ch === ',') {
+      endCell();
+    } else if (ch === '\n') {
+      endRow();
+    } else {
+      buf += ch;
     }
-    cells.push(buf.trim());
-    return cells;
   }
+  if (buf.length || cells.length) endRow();
 
-  const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const headers = (rows[0] || []).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
   const col = name => headers.indexOf(name);
 
   const c = {
@@ -227,8 +237,7 @@ function parseCSV(raw) {
     websiteStatus: col('websitestatus'),
   };
 
-  return lines.slice(1)
-    .map(l => parseLine(l))
+  return rows.slice(1)
     .filter(r => r.some(cell => cell !== ''))
     .map(r => ({
       pathway:       r[c.pathway]       || '',
