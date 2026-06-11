@@ -346,6 +346,14 @@ function render() {
     return;
   }
 
+  /* Induction date/time is keyed off the full (unfiltered) data so the
+     pathway bar keeps showing it even when filters hide the induction row. */
+  const inductionByPathway = new Map();
+  for (const r of allRows) {
+    const p = r.pathway.trim();
+    if (isInduction(r) && r.induct && /^\d+$/.test(p)) inductionByPathway.set(p, r.induct);
+  }
+
   const pathwayMap = new Map();
   const standalone = [];
 
@@ -366,8 +374,8 @@ function render() {
     html += `<div class="section-head"><div class="section-eyebrow">Trainer Development Pathways For New Trainers</div></div>`;
 
     for (const [pNum, pRows] of [...pathwayMap.entries()].sort((a, b) => +a[0] - +b[0])) {
-      const indRow = pRows.find(r => r.induct);
-      const indText = indRow ? fmtInduction(indRow.induct) : '';
+      const indVal = inductionByPathway.get(pNum);
+      const indText = indVal ? fmtInduction(indVal) : '';
       const bodyRows = pRows.filter(r => !isInduction(r));
       if (!bodyRows.length) continue;
       const loc = bodyRows[0].location;
