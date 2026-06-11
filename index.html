@@ -274,9 +274,26 @@ function fmtRange(s, e) {
   return `${fmtDate(s)} – ${fmtDate(e)}`;
 }
 
+function fmtTime(s) {
+  const m = (s.split(' ')[1] || '').match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return '';
+  let h = +m[1]; const min = +m[2];
+  const ampm = h < 12 ? 'am' : 'pm';
+  h = h % 12; if (h === 0) h = 12;
+  return min === 0 ? `${h}${ampm}` : `${h}:${String(min).padStart(2, '0')}${ampm}`;
+}
+
 function fmtInduction(s) {
   const p = parseDate(s);
-  return p ? `Online induction: ${p.d} ${MON[p.m]} ${p.y}` : '';
+  if (!p) return '';
+  const time = fmtTime(s);
+  return `Online induction: ${p.d} ${MON[p.m]} ${p.y}${time ? `, ${time}` : ''}`;
+}
+
+/* A row whose Course is "Induction" carries only the pathway induction date/time;
+   it should populate the charcoal bar, never appear as a table row. */
+function isInduction(r) {
+  return (r.course || '').trim().toLowerCase() === 'induction';
 }
 
 /* ── HTML helpers ───────────────────────────────────────────────────────── */
@@ -337,7 +354,7 @@ function render() {
     if (/^\d+$/.test(p)) {
       if (!pathwayMap.has(p)) pathwayMap.set(p, []);
       pathwayMap.get(p).push(r);
-    } else {
+    } else if (!isInduction(r)) {
       standalone.push(r);
     }
   }
@@ -349,9 +366,11 @@ function render() {
     html += `<div class="section-head"><div class="section-eyebrow">Trainer Development Pathways For New Trainers</div></div>`;
 
     for (const [pNum, pRows] of [...pathwayMap.entries()].sort((a, b) => +a[0] - +b[0])) {
-      const loc = pRows[0].location;
       const indRow = pRows.find(r => r.induct);
       const indText = indRow ? fmtInduction(indRow.induct) : '';
+      const bodyRows = pRows.filter(r => !isInduction(r));
+      if (!bodyRows.length) continue;
+      const loc = bodyRows[0].location;
 
       html += `
       <div class="pathway-block">
@@ -365,7 +384,7 @@ function render() {
           <thead><tr>
             <th>Course</th><th>Stage</th><th>Dates</th><th>Duration</th><th>Places Available</th><th>Status</th>
           </tr></thead>
-          <tbody>${pRows.map(r => courseRow(r, false)).join('')}</tbody>
+          <tbody>${bodyRows.map(r => courseRow(r, false)).join('')}</tbody>
         </table>
       </div>`;
     }
