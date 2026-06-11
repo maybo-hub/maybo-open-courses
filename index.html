@@ -453,7 +453,12 @@ function renderYearFilters(rows) {
 function renderLocFilters(rows) {
   const locs = [...new Set(
     rows.map(r => r.location.trim()).filter(l => l.length > 0)
-  )].sort((a, b) => a.localeCompare(b));
+  )].sort((a, b) => {
+    /* Jersey always sorts last; everything else alphabetical. */
+    if (a.toLowerCase() === 'jersey') return 1;
+    if (b.toLowerCase() === 'jersey') return -1;
+    return a.localeCompare(b);
+  });
 
   const container = document.getElementById('loc-filters');
   const allBtn = `<button class="filter-btn active" onclick="setLocFilter('all',this)">All</button>`;
