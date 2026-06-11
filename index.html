@@ -374,10 +374,11 @@ function stageBadge(stage) {
 }
 
 function placesHtml(places, capacity) {
-  const p = parseInt(places), c = parseInt(capacity);
+  const p = parseInt(places);
   if (isNaN(p)) return places || '—';
   if (p === 0) return `<span class="full">Full</span>`;
-  const cls = (!isNaN(c) && p / c <= 0.25) ? 'limited' : 'avail';
+  /* 2 or fewer places remaining → red, otherwise green. */
+  const cls = p <= 2 ? 'full' : 'avail';
   return `<span class="${cls}">${p}</span>`;
 }
 
